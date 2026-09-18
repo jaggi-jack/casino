@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Casino · Your table</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,sans-serif;color:#f4f0df;background:#10251f}*{box-sizing:border-box}body{margin:0}main{max-width:1150px;margin:auto;padding:28px}header,.row{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}h1{font-family:Georgia,serif;font-size:40px;margin:0}h2{font-size:17px;margin:0 0 14px}.eyebrow{color:#d6bc79;font-size:12px;letter-spacing:3px;text-transform:uppercase}p{line-height:1.6}.muted{color:#b7c6bc;font-size:14px}button,select,input{font:inherit}input{background:#10271f;color:#fff;border:1px solid #6f8976;border-radius:6px;padding:10px;max-width:100%}.profile{margin-top:20px}.profile form{display:flex;align-items:center;gap:10px;flex-wrap:wrap}button{cursor:pointer;background:#d8bf80;color:#17271e;border:0;border-radius:7px;padding:11px 18px;font-weight:650}button:disabled{cursor:default;opacity:.45}button:focus-visible,select:focus-visible{outline:3px solid #ffd977;outline-offset:4px}.secondary{background:#29473a;color:#f4f0df;border:1px solid #668273}.scoreboard{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:24px 0}.scorebox{padding:18px 22px;background:#1c382e;border:1px solid #466052;border-radius:12px}.points{font-size:30px;color:#e8cf91}.layout{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:20px}.felt{background:radial-gradient(ellipse at center,#285c47,#193e30);border:1px solid #607b59;border-radius:20px;padding:24px;box-shadow:0 12px 40px #0003}.zone{padding:16px 0}.zone+.zone{border-top:1px solid #ffffff24}.cards{display:flex;flex-wrap:wrap;gap:10px;min-height:105px;align-items:center}.card{width:66px;height:94px;padding:7px 8px;border-radius:8px;background:#fffaf0;color:#202d29;border:3px solid transparent;box-shadow:0 4px 5px #0003;font-family:Georgia,serif;font-size:24px;text-align:left;display:flex;flex-direction:column;justify-content:space-between;flex-shrink:0}.card .suit{align-self:flex-end;font-size:31px}.card.red{color:#b53837}.card:disabled{opacity:1}.card.selected{border-color:#ffc956;transform:translateY(-5px);box-shadow:0 0 0 2px #ffc956}.back{background:repeating-linear-gradient(45deg,#274e66,#274e66 5px,#335e75 5px,#335e75 7px);border:4px solid #d9dfd3;display:grid;place-items:center;color:#d9dfd3;font-size:34px}.status{margin:0 0 18px;padding:14px 18px;background:#e0c58b;color:#183629;border-radius:9px;font-weight:700}.panel{background:#193229;border:1px solid #3c5749;border-radius:12px;padding:18px;margin-bottom:16px}select{width:100%;background:#10271f;color:#fff;border:1px solid #6f8976;border-radius:6px;padding:10px;margin:10px 0}#history{max-height:240px;overflow:auto;padding-left:22px;font-size:13px;line-height:1.65}#history li{margin-bottom:8px}#error{color:#ffd4c8}#result{border:2px solid #dfc480;background:#254738;margin-bottom:18px}#selection{min-height:48px}summary{cursor:pointer;color:#e6ce94}footer{margin-top:24px} @media(max-width:800px){.layout{grid-template-columns:1fr}main{padding:16px}.felt{padding:16px}.scorebox{padding:12px}.card{width:58px;height:84px}.cards{gap:8px}}
+</style>
+</head>
+<body><main>
+<header><div><div class="eyebrow">A little luck. A little arithmetic.</div><h1>Casino</h1><div class="muted">Hungarian Cassino · You vs. computer</div></div><button id="new" class="secondary">New deal</button></header>
+<section class="panel profile" aria-label="Player profile"><form id="profile-form"><label for="player-name">Your name</label><input id="player-name" maxlength="40" placeholder="Enter your name" required autocomplete="nickname"><button type="submit">Save name</button></form><p id="personal-best" aria-live="polite"></p><div id="storage-note" class="muted">Your name and best completed-deal score are saved in this browser.</div></section>
+<div class="scoreboard"><section class="scorebox"><div class="row"><strong id="player-label">You</strong><span id="you-score" class="points">0</span></div><div id="you-stats" class="muted"></div></section><section class="scorebox"><div class="row"><strong>Computer</strong><span id="cpu-score" class="points">0</span></div><div id="cpu-stats" class="muted"></div></section></div>
+<div id="status" class="status" role="status" aria-live="polite">Dealing cards…</div>
+<section id="result" class="panel" hidden><h2 id="winner"></h2><p id="final-score"></p><span class="muted">All 52 cards have been collected. Choose New deal to play again.</span></section>
+<div class="layout"><section class="felt" aria-label="Playing table">
+<div class="zone"><div class="row"><h2>Computer’s hand</h2><span id="stock" class="muted"></span></div><div id="opponent" class="cards"></div></div>
+<div class="zone"><h2>On the table <span id="table-count" class="muted"></span></h2><div id="table" class="cards"></div></div>
+<div class="zone"><h2>Your hand</h2><div id="hand" class="cards"></div></div>
+</section><aside>
+<section class="panel"><h2><label for="legal">Your move</label></h2><div class="muted">Choose a move below. The highlighted cards show what you will play and capture.</div><select id="legal" aria-label="Available legal actions"></select><p id="selection" aria-live="polite">Choose a move to preview it.</p><button id="play" disabled>Play move</button><p id="error" role="alert"></p></section>
+<section class="panel"><h2>Deal history</h2><ol id="history" aria-live="polite"></ol></section>
+</aside></div>
+<footer><details><summary>Rules & scoring</summary><p>A = 1, J = 11, Q = 12, K = 13. Capture any table group with the same total as one or more cards from your hand, or place one card. Clearing the table earns a sweep point. The next player places on the empty table and plays again if they still have cards. When both hands run out, the last capturer receives three new cards first and leads. At the end, the last capturer collects the remaining table cards.</p><p>27+ cards: 3 points · 7+ spades: 2 points · Each ace: 1 point · 10♦: 2 points · 2♠: 1 point · Each sweep: 1 point. Displayed scores count points earned so far; card and spade bonuses appear when their thresholds are reached.</p></details></footer>
+</main>
+<script>
+const $=id=>document.getElementById(id), symbols={S:'♠',H:'♥',D:'♦',C:'♣'}, names={S:'spades',H:'hearts',D:'diamonds',C:'clubs'};
+let state,busy=false, timer, selectedHand=new Set(),selectedTable=new Set();
+const profileKey='casino-player-v1';
+let profile={name:'',best:null};
+try {
+    const saved=JSON.parse(localStorage.getItem(profileKey));
+    if(saved && typeof saved.name==='string') {
+        profile.name=saved.name.trim().slice(0,40);
+        if(Number.isInteger(saved.best) && saved.best>=0) profile.best=saved.best;
+    }
+} catch (_) {
+    $('storage-note').textContent='Browser storage is unavailable. Your profile will last only until you leave this page.';
+}
+$('player-name').value=profile.name;
+function saveProfile() {
+    try {localStorage.setItem(profileKey,JSON.stringify(profile));}
+    catch (_) {$('storage-note').textContent='Could not save in this browser. Keep this page open to retain your personal best.';}
+}
+function renderProfile() {
+    const name=profile.name||'You';
+    $('player-label').textContent=name;
+    $('personal-best').textContent=profile.best===null
+        ? `${name} · Personal best: no completed deals yet`
+        : `${name} · Personal best: ${profile.best} points`;
+}
+$('profile-form').onsubmit=event=>{
+    event.preventDefault();
+    const name=$('player-name').value.trim();
+    if(!name) {$('player-name').setCustomValidity('Please enter your name.');$('player-name').reportValidity();return;}
+    profile.name=name;
+    saveProfile();
+    if(state) render(); else renderProfile();
+};
+$('player-name').oninput=()=>$('player-name').setCustomValidity('');
+renderProfile();
+const label=c=>c.slice(0,-1)+symbols[c.slice(-1)];
+const total=cards=>[...cards].reduce((n,c)=>n+({A:1,J:11,Q:12,K:13}[c.slice(0,-1)]||Number(c.slice(0,-1))),0);
+const equal=(a,b)=>a.length===b.size&&a.every(c=>b.has(c));
+const actionable=()=>state&&!state.over&&state.player===0&&!busy;
+function cards(id,items,selection){$(id).replaceChildren();for(const c of items){const el=document.createElement('div');el.className='card'+('HD'.includes(c.slice(-1))?' red':'')+(selection.has(c)?' selected':'');el.setAttribute('role','img');el.setAttribute('aria-label',`${c.slice(0,-1)} of ${names[c.slice(-1)]}${selection.has(c)?', selected for this move':''}`);const rank=document.createElement('span'),suit=document.createElement('span');rank.textContent=c.slice(0,-1);suit.textContent=symbols[c.slice(-1)];suit.className='suit';el.append(rank,suit);$(id).append(el)}if(!items.length){const p=document.createElement('span');p.className='muted';p.textContent='No cards';$(id).append(p)}}
+function renderSelection(){
+    cards('hand',state.hand,selectedHand);
+    cards('table',state.table,selectedTable);
+    const valid=state.moves.some(m=>equal(m.hand,selectedHand)&&equal(m.table,selectedTable));
+    $('play').disabled=!actionable()||!valid;
+    $('selection').textContent=valid
+        ? selectedTable.size
+            ? `Capture: your cards total ${total(selectedHand)}, matching ${total(selectedTable)} on the table.`
+            : `Place ${[...selectedHand].map(label).join('')} on the table.`
+        : state.over?'This deal is finished.':state.player===1?'The computer is choosing a move.':'Choose a move to preview it.';
+}
+function previewMove(){
+    const choice=$('legal').value;
+    const move=choice===''?null:state.moves[Number(choice)];
+    selectedHand=new Set(move?move.hand:[]);
+    selectedTable=new Set(move?move.table:[]);
+    renderSelection();
+}
+function render(){const scores=state.scores;
+if(state.over && (profile.best===null || scores[0]>profile.best)) {profile.best=scores[0];saveProfile();}
+renderProfile();for(const [i,prefix] of ['you','cpu'].entries()){$(prefix+'-score').textContent=scores[i];$(prefix+'-stats').textContent=`${state.captured[i]} cards · ${state.spades[i]} spades · ${state.sweeps[i]} sweeps`}$('stock').textContent=`${state.stock} cards in stock`;$('table-count').textContent=`(${state.table.length})`;$('opponent').replaceChildren();for(let i=0;i<state.opponent_count;i++){const el=document.createElement('div');el.className='card back';el.textContent='✦';el.setAttribute('aria-label','Face-down computer card');$('opponent').append(el)}$('status').textContent=state.over?'Deal over':state.player===1?'Computer’s turn…':!state.table.length?'Your turn · Place a card on the empty table, then play again.':'Your turn · Capture or place a card';$('result').hidden=!state.over;if(state.over){$('winner').textContent=scores[0]===scores[1]?'A draw!':scores[0]>scores[1]?'You win!':'Computer wins';$('final-score').textContent=`Final score · ${profile.name||'You'} ${scores[0]} — Computer ${scores[1]}`}$('legal').replaceChildren();if(state.moves.length){const placeholder=document.createElement('option');placeholder.value='';placeholder.textContent='Choose your move…';$('legal').append(placeholder)}state.moves.forEach((m,i)=>{const op=document.createElement('option');op.value=i;op.textContent=m.table.length?`Capture ${m.table.map(label).join(' + ')} with ${m.hand.map(label).join(' + ')}`:`Place ${m.hand.map(label).join(' + ')}`;$('legal').append(op)});if(!state.moves.length){const op=document.createElement('option');op.textContent=state.over?'Deal finished':'Waiting for computer';$('legal').append(op)}$('legal').disabled=!actionable();$('new').disabled=busy;$('history').replaceChildren();for(const message of state.history.slice().reverse()){const li=document.createElement('li');li.textContent=message;$('history').append(li)}previewMove()}
+async function request(path,body){if(busy)return;busy=true;clearTimeout(timer);$('error').textContent='';if(state)render();try{const response=await fetch(path,body===undefined?{}:{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...body,revision:state.revision})});const data=await response.json();if(!response.ok)throw Error(data.error||'Request failed');state=data;selectedHand.clear();selectedTable.clear()}catch(error){$('error').textContent=error.message+' Reload the page to reconnect if needed.'}finally{busy=false;if(state){render();if(!state.over&&state.player===1)timer=setTimeout(()=>request('/api/computer',{}),850)}}}
+$('play').onclick=()=>request('/api/play',{hand:[...selectedHand],table:[...selectedTable]});$('legal').onchange=previewMove;$('new').onclick=()=>{if(!state||state.over||confirm('End this deal and start a new one?'))request('/api/new',{})};request('/api/state');
+</script></body></html>

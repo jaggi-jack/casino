@@ -3,14 +3,36 @@
 The **Hungarian two-player version** of Cassino, with a 52-card French deck —
 in the browser, you against the computer.
 
-There is no code here yet. There are tests.
+## Play in your browser
 
-## What to build
+From this project directory, run:
 
-1. A module `casino` that passes the tests in `tests/`.
-2. A table in the browser where you play a whole deal against the computer.
-   Card images: for example [Byron Knoll's public-domain deck](https://commons.wikimedia.org/wiki/Category:Playing_cards_set_by_Byron_Knoll)
-   on Wikimedia Commons (SVG, all 52 cards).
+```sh
+uv run python app.py
+```
+
+This starts the local server and opens **http://127.0.0.1:8000** in your
+browser. If the browser does not open automatically, visit that address.
+Keep the terminal running while you play; press Ctrl+C to stop the server.
+
+Under **Your move**, choose a move from the dropdown. Its cards are highlighted
+on the table and in your hand so you can preview it. Click **Play move** to
+confirm. Every listed move is legal: captures match the totals of your cards
+and table cards, while placements leave one of your cards on the table.
+
+The computer takes its turns automatically. Scores, captured-card counts,
+sweeps, stock size, and move history update as you play. After the final pickup,
+the table announces the winner and final score. **New deal** starts again.
+The Rules & scoring section explains card values and points.
+
+Enter your name above the table and click **Save name**. Your name and personal
+best score from completed deals are saved in this browser and displayed on every
+new deal, including after restarting the server. Clearing browser data removes
+this record. Changing your name renames the same player profile.
+
+Each browser session has its own deal. Refreshing resumes it while the server
+is running; restarting the server clears deals. No extra runtime dependencies
+or external card assets are needed.
 
 ## Run the tests
 
